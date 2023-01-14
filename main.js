@@ -25,7 +25,6 @@ discord.on(Events.VoiceStateUpdate, async (oldState, newState) => {
 
   /* 人数が変化していない場合 */
   if (oldChannel === newChannel) return;
-  // if (newChannel && newChannel.id !== LEARNING_CHANNEL_ID) return;
 
   /* 最初の一人を検知 */
   if (
@@ -39,7 +38,7 @@ discord.on(Events.VoiceStateUpdate, async (oldState, newState) => {
       console.log('start');
       await slack.chat.postMessage({
         channel: SLACK_LEARNING_CHANNEL_ID,
-        text: `【${nowString}】\nDiscordの自習室で作業を開始したメンバーがいるようです！\n下のURLから参加してみましょう🥳\nhttps://discord.gg/JarxAYjm6C`,
+        text: `[${nowString}]\nDiscordの自習室で作業を開始したメンバーがいるようです！\n下のURLから参加してみましょう🥳\nhttps://discord.gg/JarxAYjm6C`,
         unfurl_links: false,
         unfurl_media: false,
       });
