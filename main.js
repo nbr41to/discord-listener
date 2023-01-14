@@ -5,21 +5,11 @@ const { format } = require('date-fns');
 const express = require('express');
 const app = express();
 
-/* renderのdeployに成功するため */
-app.get('/', function (req, res) {
-  res.send('Hello World!');
-});
-app.get('/health', function (req, res) {
-  res.send('OK');
-});
-app.listen(8080, function () {
-  console.log('Example app listening on port 8080!');
-});
-
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 const DISCORD_LEARNING_CHANNEL_ID = process.env.DISCORD_LEARNING_CHANNEL_ID;
 const SLACK_BOT_TOKEN = process.env.SLACK_BOT_TOKEN;
 const SLACK_LEARNING_CHANNEL_ID = process.env.SLACK_LEARNING_CHANNEL_ID;
+const PORT = process.env.PORT || 3001;
 
 const discord = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates],
@@ -72,3 +62,11 @@ discord.on(Events.VoiceStateUpdate, async (oldState, newState) => {
 });
 
 discord.login(DISCORD_BOT_TOKEN);
+
+/* renderのdeployに成功するため */
+app.get('/health', function (req, res) {
+  res.send('OK');
+});
+app.listen(PORT, function () {
+  console.log(`listening on port ${PORT}`);
+});
