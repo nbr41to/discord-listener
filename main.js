@@ -2,6 +2,16 @@ require('dotenv').config();
 const { Client, Events, GatewayIntentBits } = require('discord.js');
 const { WebClient } = require('@slack/web-api');
 const { format } = require('date-fns');
+const express = require('express');
+const app = express();
+
+/* renderのdeployに成功するため */
+app.get('/', function (req, res) {
+  res.send('Hello World!');
+});
+app.listen(3000, function () {
+  console.log('Example app listening on port 3000!');
+});
 
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 const DISCORD_LEARNING_CHANNEL_ID = process.env.DISCORD_LEARNING_CHANNEL_ID;
