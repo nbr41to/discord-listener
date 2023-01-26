@@ -127,15 +127,15 @@ discord.on(Events.VoiceStateUpdate, async (oldState, newState) => {
     });
 
     /* Slackの投稿を更新 */
-    slack.chat.update({
+    await slack.chat.update({
       channel: SLACK_LEARNING_CHANNEL_ID,
       ts,
       blocks: finishedBlocks(startedAtFormatted, joinedMembers, totalTimes),
       text: 'Started learning 🎉',
     });
 
-    /* ルームの削除 */
-    deleteSession(ts);
+    /* Sessionの削除 */
+    await deleteSession(ts);
   }
 });
 
