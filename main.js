@@ -14,6 +14,8 @@ const {
   deleteSession,
 } = require('./src/sessions.js');
 
+const express = require('express');
+
 /* Environments */
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 const DISCORD_LEARNING_CHANNEL_ID = process.env.DISCORD_LEARNING_CHANNEL_ID;
@@ -138,3 +140,15 @@ discord.on(Events.VoiceStateUpdate, async (oldState, newState) => {
 });
 
 discord.login(DISCORD_BOT_TOKEN);
+
+/* Health check */
+const app = express();
+const PORT = process.env.PORT || 3001;
+
+app.get('/', (req, res) => {
+  res.send('Hello World!');
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
