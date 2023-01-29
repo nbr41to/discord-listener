@@ -148,6 +148,25 @@ const PORT = process.env.PORT || 3001;
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
+app.get('/time', (req, res) => {
+  const now = new Date();
+  const nowFormatted = format(new Date(), 'yyyy/MM/dd HH:mm:ss');
+
+  const jpNow = new Date().toLocaleString('ja-JP', {
+    timeZone: 'Asia/Tokyo',
+  });
+  const jpNowFormatted1 = format(new Date(), 'yyyy/MM/dd HH:mm:ss', {
+    timeZone: 'Asia/Tokyo',
+  });
+  const jpNowFormatted2 = format(new Date(), 'yyyy/MM/dd HH:mm:ss');
+  res.json({
+    now,
+    nowFormatted,
+    jpNow,
+    jpNowFormatted1,
+    jpNowFormatted2,
+  });
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
