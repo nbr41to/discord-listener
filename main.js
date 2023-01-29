@@ -1,7 +1,6 @@
 require('dotenv').config();
 const { Client, Events, GatewayIntentBits } = require('discord.js');
 const { WebClient } = require('@slack/web-api');
-const { format, parseISO, formatDistanceToNow } = require('date-fns');
 const dayjs = require('dayjs');
 const {
   startedBlocks,
@@ -62,14 +61,12 @@ discord.on(Events.VoiceStateUpdate, async (oldState, newState) => {
   /* 最初の一人を検知 */
   if (isStarting) {
     try {
-      const nowFormatted = format(new Date(), 'yyyy/MM/dd HH:mm:ss', {
-        timeZone: 'Asia/Tokyo',
-      });
+      const nowJp = dayjs.tz().format('YYYY/MM/DD HH:mm:ss');
 
       /* Slackへの通知 */
       const response = await slack.chat.postMessage({
         channel: SLACK_LEARNING_CHANNEL_ID,
-        blocks: startedBlocks(nowFormatted, newState.member.user.username),
+        blocks: startedBlocks(nowJp, newState.member.user.username),
         text: 'Started learning 🎉',
       });
 
@@ -88,13 +85,10 @@ discord.on(Events.VoiceStateUpdate, async (oldState, newState) => {
     const session = await getLatestSession();
     if (!session) return;
     const ts = session.slack_timestamp;
-    const startedAtFormatted = format(
-      parseISO(session.created_at),
-      'yyyy/MM/dd HH:mm:ss',
-      {
-        timeZone: 'Asia/Tokyo',
-      },
-    );
+    const startedAtFormatted = dayjs
+      .utc(session.created_at)
+      .add(9, 'hour')
+      .format('YYYY/MM/DD HH:mm:ss');
     const members = newChannel.members.map((member) => member.user.username);
 
     /* Slackの投稿を更新 */
@@ -102,7 +96,7 @@ discord.on(Events.VoiceStateUpdate, async (oldState, newState) => {
       channel: SLACK_LEARNING_CHANNEL_ID,
       ts,
       blocks: updatedBlocks(startedAtFormatted, members),
-      text: 'Started learning 🎉',
+      text: 'updated learning 👥',
     });
 
     /* Sessionを更新 */
@@ -116,26 +110,27 @@ discord.on(Events.VoiceStateUpdate, async (oldState, newState) => {
     const session = await getLatestSession();
     if (!session) return;
     const ts = session.slack_timestamp;
-    const startedAtFormatted = format(
-      parseISO(session.created_at),
-      'yyyy/MM/dd HH:mm:ss',
-      {
-        timeZone: 'Asia/Tokyo',
-      },
-    );
+    const startedAtUTC = dayjs.utc(session.created_at);
+    const startedAtFormatted = startedAtUTC
+      .add(9, 'hour')
+      .format('YYYY/MM/DD HH:mm:ss');
+    /* 開催時間 */
+    const hour = dayjs.utc().diff(startedAtUTC, 'hour');
+    const minute = dayjs.utc().diff(startedAtUTC, 'minute') % 60;
+    const second = dayjs.utc().diff(startedAtUTC, 'second') % 60;
+    const totalTimes =
+      hour > 0 ? `${hour}時間${minute}分${second}秒` : `${minute}分${second}秒`;
+
     const joinedMembers = session.joined_member_ids.map(
       (id) => discord.users.cache.get(id)?.username,
     );
-    const totalTimes = formatDistanceToNow(parseISO(session.created_at), {
-      timeZone: 'Asia/Tokyo',
-    });
 
     /* Slackの投稿を更新 */
     await slack.chat.update({
       channel: SLACK_LEARNING_CHANNEL_ID,
       ts,
       blocks: finishedBlocks(startedAtFormatted, joinedMembers, totalTimes),
-      text: 'Started learning 🎉',
+      text: 'Finished learning ✨',
     });
 
     /* Sessionの削除 */
@@ -151,27 +146,6 @@ const PORT = process.env.PORT || 3001;
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
-});
-app.get('/time', (req, res) => {
-  const now = new Date();
-  const nowFormatted = format(new Date(), 'yyyy/MM/dd HH:mm:ss');
-  const dayjs_jpNow = dayjs.tz().format('YYYY/MM/DD HH:mm:ss');
-
-  const jpNow = new Date().toLocaleString('ja-JP', {
-    timeZone: 'Asia/Tokyo',
-  });
-  const jpNowFormatted1 = format(new Date(), 'yyyy/MM/dd HH:mm:ss', {
-    timeZone: 'Asia/Tokyo',
-  });
-  const jpNowFormatted2 = format(new Date(), 'yyyy/MM/dd HH:mm:ss');
-  res.json({
-    now,
-    nowFormatted,
-    jpNow,
-    dayjs_jpNow,
-    jpNowFormatted1,
-    jpNowFormatted2,
-  });
 });
 
 app.listen(PORT, () => {
