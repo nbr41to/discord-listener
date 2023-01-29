@@ -2,6 +2,7 @@ require('dotenv').config();
 const { Client, Events, GatewayIntentBits } = require('discord.js');
 const { WebClient } = require('@slack/web-api');
 const { format, parseISO, formatDistanceToNow } = require('date-fns');
+const dayjs = require('dayjs');
 const {
   startedBlocks,
   updatedBlocks,
@@ -151,6 +152,7 @@ app.get('/', (req, res) => {
 app.get('/time', (req, res) => {
   const now = new Date();
   const nowFormatted = format(new Date(), 'yyyy/MM/dd HH:mm:ss');
+  const dayjs_jpNow = dayjs().tz('Asia/Tokyo').format('YYYY/MM/DD HH:mm:ss');
 
   const jpNow = new Date().toLocaleString('ja-JP', {
     timeZone: 'Asia/Tokyo',
@@ -163,6 +165,7 @@ app.get('/time', (req, res) => {
     now,
     nowFormatted,
     jpNow,
+    dayjs_jpNow,
     jpNowFormatted1,
     jpNowFormatted2,
   });
