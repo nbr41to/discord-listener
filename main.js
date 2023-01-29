@@ -14,8 +14,11 @@ const {
   updateSession,
   deleteSession,
 } = require('./src/sessions.js');
-
 const express = require('express');
+
+dayjs.extend(require('dayjs/plugin/timezone'));
+dayjs.extend(require('dayjs/plugin/utc'));
+dayjs.tz.setDefault('Asia/Tokyo');
 
 /* Environments */
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
@@ -152,7 +155,7 @@ app.get('/', (req, res) => {
 app.get('/time', (req, res) => {
   const now = new Date();
   const nowFormatted = format(new Date(), 'yyyy/MM/dd HH:mm:ss');
-  const dayjs_jpNow = dayjs().tz('Asia/Tokyo').format('YYYY/MM/DD HH:mm:ss');
+  const dayjs_jpNow = dayjs.tz().format('YYYY/MM/DD HH:mm:ss');
 
   const jpNow = new Date().toLocaleString('ja-JP', {
     timeZone: 'Asia/Tokyo',
