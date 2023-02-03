@@ -80,28 +80,33 @@ discord.on(Events.VoiceStateUpdate, async (oldState, newState) => {
     }
   }
 
+  /* 人の出入りを検知 */
   if (isUpdating) {
-    /* 最新のSessionのtsを取得 */
-    const session = await getLatestSession();
-    if (!session) return;
-    const ts = session.slack_timestamp;
-    const startedAtFormatted = dayjs
-      .utc(session.created_at)
-      .add(9, 'hour')
-      .format('YYYY/MM/DD HH:mm:ss');
-    const members = newChannel.members.map((member) => member.user.username);
+    try {
+      /* 最新のSessionのtsを取得 */
+      const session = await getLatestSession();
+      if (!session) return;
+      const ts = session.slack_timestamp;
+      const startedAtFormatted = dayjs
+        .utc(session.created_at)
+        .add(9, 'hour')
+        .format('YYYY/MM/DD HH:mm:ss');
+      const members = newChannel.members.map((member) => member.user.username);
 
-    /* Slackの投稿を更新 */
-    await slack.chat.update({
-      channel: SLACK_LEARNING_CHANNEL_ID,
-      ts,
-      blocks: updatedBlocks(startedAtFormatted, members),
-      text: 'updated learning 👥',
-    });
+      /* Slackの投稿を更新 */
+      await slack.chat.update({
+        channel: SLACK_LEARNING_CHANNEL_ID,
+        ts,
+        blocks: updatedBlocks(startedAtFormatted, members),
+        text: 'updated learning 👥',
+      });
 
-    /* Sessionを更新 */
-    const joinedIds = newChannel.members.map((member) => member.user.id);
-    await updateSession(ts, { joined_member_ids: joinedIds });
+      /* Sessionを更新 */
+      const joinedIds = newChannel.members.map((member) => member.user.id);
+      await updateSession(ts, { joined_member_ids: joinedIds });
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   /* 最後の一人を検知 */
