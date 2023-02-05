@@ -91,7 +91,10 @@ discord.on(Events.VoiceStateUpdate, async (oldState, newState) => {
         .utc(session.created_at)
         .add(9, 'hour')
         .format('YYYY/MM/DD HH:mm:ss');
-      const members = newChannel.members.map((member) => member.user.username);
+      const isJoining = newChannel.id === DISCORD_LEARNING_CHANNEL_ID;
+      const members = isJoining
+        ? newChannel.members.map((member) => member.user.username)
+        : oldChannel.members.map((member) => member.user.username);
 
       /* Slackの投稿を更新 */
       await slack.chat.update({
