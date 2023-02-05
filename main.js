@@ -88,7 +88,7 @@ discord.on(Events.VoiceStateUpdate, async (oldState, newState) => {
       /* 最新のSessionのtsを取得 */
       const session = await getLatestSession();
       if (!session) return;
-      const ts = '1675558684994879';
+      const ts = '1675558684.994879';
       // const ts = session.slack_timestamp;
       const startedAtFormatted = dayjs
         .utc(session.created_at)
