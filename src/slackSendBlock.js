@@ -60,18 +60,18 @@ const updatedBlocks = (startedAt, usernames) => [
       text: '★Discordの自習室が公開中★',
     },
   },
-  ...usernames.map((username) => ({
+  {
     type: 'actions',
     elements: [
-      {
+      ...usernames.map((username) => ({
         type: 'button',
         text: {
           type: 'plain_text',
           text: username,
         },
-      },
+      })),
     ],
-  })),
+  },
   {
     type: 'section',
     text: {
@@ -116,18 +116,18 @@ const finishedBlocks = (startedAt, usernames, totalTimes) => [
       },
     ],
   },
-  ...usernames.map((username) => ({
+  {
     type: 'actions',
     elements: [
-      {
+      ...usernames.map((username) => ({
         type: 'button',
         text: {
           type: 'plain_text',
           text: username,
         },
-      },
+      })),
     ],
-  })),
+  },
   {
     type: 'section',
     text: {
