@@ -53,7 +53,9 @@ discord.on(Events.VoiceStateUpdate, async (oldState, newState) => {
       oldChannel.id === DISCORD_LEARNING_CHANNEL_ID &&
       oldChannel.members.size > 0);
   const isFinishing =
-    oldChannel && oldChannel.id === DISCORD_LEARNING_CHANNEL_ID;
+    oldChannel &&
+    oldChannel.id === DISCORD_LEARNING_CHANNEL_ID &&
+    oldChannel.members.size === 0;
 
   /* 人数が変化していない場合 */
   if (oldChannel === newChannel) return;
@@ -86,12 +88,13 @@ discord.on(Events.VoiceStateUpdate, async (oldState, newState) => {
       /* 最新のSessionのtsを取得 */
       const session = await getLatestSession();
       if (!session) return;
-      const ts = session.slack_timestamp;
+      const ts = '1675558684994879';
+      // const ts = session.slack_timestamp;
       const startedAtFormatted = dayjs
         .utc(session.created_at)
         .add(9, 'hour')
         .format('YYYY/MM/DD HH:mm:ss');
-      const isJoining = newChannel.id === DISCORD_LEARNING_CHANNEL_ID;
+      const isJoining = newChannel?.id === DISCORD_LEARNING_CHANNEL_ID;
       const members = isJoining
         ? newChannel.members.map((member) => member.user.username)
         : oldChannel.members.map((member) => member.user.username);
@@ -104,9 +107,18 @@ discord.on(Events.VoiceStateUpdate, async (oldState, newState) => {
         text: 'updated learning 👥',
       });
 
+      const joinedIds = isJoining
+        ? newChannel.members.map((member) => member.user.id)
+        : oldChannel.members.map((member) => member.user.id);
+      /* ルームの作成 */
+      await createSession({
+        slack_timestamp: ts,
+        joined_member_ids: joinedIds,
+      });
+
       /* Sessionを更新 */
-      const joinedIds = newChannel.members.map((member) => member.user.id);
-      await updateSession(ts, { joined_member_ids: joinedIds });
+      // const joinedIds = newChannel.members.map((member) => member.user.id);
+      // await updateSession(ts, { joined_member_ids: joinedIds });
     } catch (error) {
       console.error(error);
     }
