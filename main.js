@@ -26,7 +26,6 @@ const SLACK_BOT_TOKEN = process.env.SLACK_BOT_TOKEN;
 const SLACK_LEARNING_CHANNEL_ID = process.env.SLACK_LEARNING_CHANNEL_ID;
 
 const discord = new Client({
-  /* ユーザのアドレスを取りたい */
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates],
 });
 
@@ -88,8 +87,7 @@ discord.on(Events.VoiceStateUpdate, async (oldState, newState) => {
       /* 最新のSessionのtsを取得 */
       const session = await getLatestSession();
       if (!session) return;
-      const ts = '1675558684.994879';
-      // const ts = session.slack_timestamp;
+      const ts = session.slack_timestamp;
       const startedAtFormatted = dayjs
         .utc(session.created_at)
         .add(9, 'hour')
@@ -107,18 +105,14 @@ discord.on(Events.VoiceStateUpdate, async (oldState, newState) => {
         text: 'updated learning 👥',
       });
 
-      const joinedIds = isJoining
-        ? newChannel.members.map((member) => member.user.id)
-        : oldChannel.members.map((member) => member.user.id);
-      /* ルームの作成 */
-      await createSession({
-        slack_timestamp: ts,
-        joined_member_ids: joinedIds,
+      /* 新しいmemberが増えた時のみSessionを更新 */
+      if (!isJoining) return;
+      const currentMemberIds = session.joined_member_ids;
+      const newMemberId = newState.member.user.id;
+      if (currentMemberIds.includes(newState.member.user.id)) return;
+      await updateSession(ts, {
+        joined_member_ids: [...currentMemberIds, newMemberId],
       });
-
-      /* Sessionを更新 */
-      // const joinedIds = newChannel.members.map((member) => member.user.id);
-      // await updateSession(ts, { joined_member_ids: joinedIds });
     } catch (error) {
       console.error(error);
     }
